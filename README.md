@@ -1,4 +1,4 @@
-# nvim-ni 
+# nvim-nio
 
 A library for asynchronous IO in Neovim, inspired by the asyncio library in Python. The library focuses on providing
 both common asynchronous primitives and asynchronous APIs for Neovim's core.
@@ -7,7 +7,6 @@ both common asynchronous primitives and asynchronous APIs for Neovim's core.
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-
 
 ## Motivation
 
