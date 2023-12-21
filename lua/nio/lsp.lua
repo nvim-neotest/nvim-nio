@@ -33,7 +33,7 @@ end, 6)
 function nio.lsp.get_clients(filters)
   local clients = {}
   for _, client in pairs(vim.lsp.get_active_clients(filters)) do
-    clients[#clients + 1] = nio.lsp.client(client.id)
+    clients[#clients + 1] = nio.lsp.convert_client(client)
   end
   return clients
 end
@@ -44,13 +44,24 @@ end
 ---@field bufnr? integer
 ---@field method? string
 
----Create an async client for the given client id
----@param client_id integer
+--- Gets a client by id, or nil if the id is invalid. The returned client may
+--- not yet be fully initialized.
+--- Equivalent to |vim.lsp.get_client_by_id|
+---@param id integer
+---@return nio.lsp.Client | nil
+function nio.lsp.get_client_by_id(id)
+  local client = vim.lsp.get_client_by_id(id)
+  if not client then
+    return
+  end
+  return nio.lsp.convert_client(client)
+end
+
+--- Create an async client for the given client
+---@param client table Neovim core LSP client object
 ---@return nio.lsp.Client
-function nio.lsp.client(client_id)
+function nio.lsp.convert_client(client)
   local n = require("nio")
-  local internal_client =
-    assert(vim.lsp.get_client_by_id(client_id), ("Client not found with ID %s"):format(client_id))
 
   ---@param name string
   local convert_method = function(name)
@@ -58,12 +69,12 @@ function nio.lsp.client(client_id)
   end
 
   return {
-    server_capabilities = internal_client.server_capabilities,
+    server_capabilities = client.server_capabilities,
     notify = setmetatable({}, {
       __index = function(_, method)
         method = convert_method(method)
         return function(params)
-          return internal_client.notify(method, params)
+          return client.notify(method, params)
         end
       end,
     }),
@@ -88,16 +99,16 @@ function nio.lsp.client(client_id)
                 n.sleep(opts.timeout)
                 local req_id = req_future.wait()
                 n.run(function()
-                  async_request(internal_client, "$/cancelRequest", { requestId = req_id }, bufnr)
+                  async_request(client, "$/cancelRequest", { requestId = req_id }, bufnr)
                 end)
                 return { code = -1, message = "Request timed out" }
               end,
               function()
-                return async_request(internal_client, method, params, bufnr, req_future)
+                return async_request(client, method, params, bufnr, req_future)
               end,
             })
           else
-            err, result = async_request(internal_client, method, params, bufnr)
+            err, result = async_request(client, method, params, bufnr)
           end
           local elapsed = vim.loop.now() - start
           logger.trace("Request", method, "took", elapsed, "ms")

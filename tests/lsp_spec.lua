@@ -17,7 +17,7 @@ describe("lsp client", function()
       }
     end
 
-    local client = nio.lsp.client(1)
+    local client = nio.lsp.get_client_by_id(1)
 
     local err, result =
       client.request.textDocument_diagnostic(expected_params, 0, { timeout = 1000 })
@@ -35,7 +35,7 @@ describe("lsp client", function()
       }
     end
 
-    local client = nio.lsp.client(1)
+    local client = nio.lsp.get_client_by_id(1)
 
     local err, result = client.request.textDocument_diagnostic(0, params)
     assert.same(err.message, "error")
@@ -51,7 +51,7 @@ describe("lsp client", function()
       }
     end
 
-    local client = nio.lsp.client(1)
+    local client = nio.lsp.get_client_by_id(1)
 
     local err, result = client.request.textDocument_diagnostic({}, 0, { timeout = 10 })
     assert.same(err.message, "Request timed out")
@@ -71,7 +71,7 @@ describe("lsp client", function()
       }
     end
 
-    local client = nio.lsp.client(1)
+    local client = nio.lsp.get_client_by_id(1)
 
     client.request.textDocument_diagnostic({}, 0, { timeout = 10 })
     assert.True(cancel_received)
@@ -87,7 +87,7 @@ describe("lsp client", function()
       }
     end
 
-    local client = nio.lsp.client(1)
+    local client = nio.lsp.get_client_by_id(1)
 
     local success, err = pcall(client.request.textDocument_diagnostic, {}, 0, { timeout = 10 })
     assert.False(success)

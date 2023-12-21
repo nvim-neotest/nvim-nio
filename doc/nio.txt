@@ -315,12 +315,23 @@ Fields~
 {bufnr?} `(integer)`
 {method?} `(string)`
 
-                                                              *nio.lsp.client()*
-`client`({client_id})
+                                                    *nio.lsp.get_client_by_id()*
+`get_client_by_id`({id})
 
-an async client for the given client id
+Gets a client by id, or nil if the id is invalid. The returned client may
+not yet be fully initialized.
+Equivalent to |vim.lsp.get_client_by_id|
 Parameters~
-{client_id} `(integer)`
+{id} `(integer)`
+Return~
+`(nio.lsp.Client)` | nil
+
+                                                      *nio.lsp.convert_client()*
+`convert_client`({client})
+
+Create an async client for the given client
+Parameters~
+{client} `(table)` Neovim core LSP client object
 Return~
 `(nio.lsp.Client)`
 
