@@ -24,8 +24,8 @@ local nio = {}
 nio.tests = {}
 
 local with_timeout = function(func, timeout)
-  local success, err
   return function()
+    local success, err
     local task = tasks.run(func, function(success_, err_)
       success = success_
       if not success_ then
