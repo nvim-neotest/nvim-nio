@@ -50,7 +50,7 @@ local format_error = function(message, traceback)
   return string.format(
     "The coroutine failed with this message: %s\n%s",
     type(message) == "string" and vim.startswith(traceback, message) and ""
-      or ("\n" .. tostring(message)),
+    or ("\n" .. tostring(message)),
     traceback
   )
 end
@@ -171,8 +171,10 @@ function nio.tasks.create(func, argc)
 end
 
 ---@package
+---@field opts nio.WrapOpts
 ---@nodoc
-function nio.tasks.wrap(func, argc)
+function nio.tasks.wrap(func, argc, args)
+  args = vim.tbl_extend("keep", args or {}, { strict = true })
   vim.validate({ func = { func, "function" }, argc = { argc, "number" } })
   local protected = function(...)
     local args = { ... }
@@ -187,6 +189,9 @@ function nio.tasks.wrap(func, argc)
 
   return function(...)
     if not current_non_main_co() then
+      if args.strict then
+        error("Cannot call async function from non-async context")
+      end
       return func(...)
     end
 

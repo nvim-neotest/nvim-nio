@@ -57,10 +57,14 @@ end
 --- ```
 ---@param func function A callback style function to be converted. The last argument must be the callback.
 ---@param argc integer The number of arguments of func. Must be included.
+---@param opts? nio.WrapOpts Additional options.
 ---@return function Returns an async function
-function nio.wrap(func, argc)
-  return tasks.wrap(func, argc)
+function nio.wrap(func, argc, opts)
+  return tasks.wrap(func, argc, opts)
 end
+
+---@class nio.WrapOpts
+---@field strict? boolean If true (default), an error will be thrown if the wrapped function is called from a non-async context.
 
 --- Takes an async function and returns a function that can run in both async
 --- and non async contexts. When running in an async context, the function can
