@@ -50,7 +50,7 @@ local format_error = function(message, traceback)
   return string.format(
     "The coroutine failed with this message: %s\n%s",
     type(message) == "string" and vim.startswith(traceback, message) and ""
-    or ("\n" .. tostring(message)),
+      or ("\n" .. tostring(message)),
     traceback
   )
 end
