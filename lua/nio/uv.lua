@@ -111,7 +111,7 @@ nio.uv = {}
 
 ---@nodoc
 local function add(name, argc)
-  local success, ret = pcall(tasks.wrap, vim.loop[name], argc, { strict = false })
+  local success, ret = pcall(tasks.wrap, vim.loop[name], argc)
 
   if not success then
     error("Failed to add function with name " .. name)
