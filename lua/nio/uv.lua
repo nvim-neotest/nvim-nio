@@ -166,6 +166,5 @@ add("listen", 3)
 -- add('read_start', 2) -- do not do this one, the callback is made multiple times
 add("write", 3)
 add("write2", 4)
-add("shutdown", 2)
 
 return nio.uv
