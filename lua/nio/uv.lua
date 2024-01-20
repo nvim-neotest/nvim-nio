@@ -117,7 +117,20 @@ local function add(name, argc)
     error("Failed to add function with name " .. name)
   end
 
-  nio.uv[name] = ret
+  nio.uv[name] = function(...)
+    if tasks.current_task() or select("#", ...) == argc then
+      -- is inside async task or is passed a `callback`
+      return ret(...)
+    else
+      -- does not work with async version (when `callback` is passed)
+      local result = { vim.loop[name](...) }
+      if not result[1] then
+        return result[2] or result[1]
+      else
+        return nil, unpack(result)
+      end
+    end
+  end
 end
 
 add("close", 4) -- close a handle
