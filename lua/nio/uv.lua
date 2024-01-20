@@ -60,12 +60,14 @@ local nio = {}
 ---@field fs_opendir async fun(path: string, entries?: integer): (string|nil,nio.uv.Dir|nil)
 ---@field fs_readdir async fun(dir: nio.uv.Dir): (string|nil,nio.uv.DirEntry[]|nil)
 ---@field fs_closedir async fun(dir: nio.uv.Dir): (string|nil,boolean|nil)
----@field fs_scandir async fun(path: string): (string|nil,nio.uv.DirEntry[]|nil)
+---@field fs_scandir async fun(path: string): (string|nil,nio.uv.FsT|nil)
 ---@field shutdown async fun(stream: nio.uv.Stream): string|nil
 ---@field listen async fun(stream: nio.uv.Stream, backlog: integer): string|nil
 ---@field write async fun(stream: nio.uv.Stream, data: string|string[]): string|nil
 ---@field write2 async fun(stream: nio.uv.Stream, data: string|string[], send_handle: nio.uv.Stream): string|nil
 nio.uv = {}
+
+---@class nio.uv.FsT
 
 ---@class nio.uv.Handle
 
@@ -109,7 +111,7 @@ nio.uv = {}
 
 ---@nodoc
 local function add(name, argc)
-  local success, ret = pcall(tasks.wrap, vim.loop[name], argc)
+  local success, ret = pcall(tasks.wrap, vim.loop[name], argc, { strict = false })
 
   if not success then
     error("Failed to add function with name " .. name)

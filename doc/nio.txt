@@ -422,13 +422,15 @@ length: integer): (string|nil,integer|nil))`
 {fs_readdir} `(async fun(dir: nio.uv.Dir):
 (string|nil,nio.uv.DirEntry[]|nil))`
 {fs_closedir} `(async fun(dir: nio.uv.Dir): (string|nil,boolean|nil))`
-{fs_scandir} `(async fun(path: string): (string|nil,nio.uv.DirEntry[]|nil))`
+{fs_scandir} `(async fun(path: string): (string|nil,nio.uv.FsT|nil))`
 {shutdown} `(async fun(stream: nio.uv.Stream): string|nil)`
 {listen} `(async fun(stream: nio.uv.Stream, backlog: integer): string|nil)`
 {write} `(async fun(stream: nio.uv.Stream, data: string|string[]):
 string|nil)`
 {write2} `(async fun(stream: nio.uv.Stream, data: string|string[],
 send_handle: nio.uv.Stream): string|nil)`
+
+                                                                    *nio.uv.FsT*
 
                                                                  *nio.uv.Handle*
 
