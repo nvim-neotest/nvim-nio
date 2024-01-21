@@ -26,7 +26,7 @@ local nio = {}
 --- ```
 ---
 ---@class nio.uv
----@field close async fun(handle: nio.uv.Handle)
+---@field close async fun(handle: uv_handle_t)
 ---@field fs_open async fun(path: any, flags: any, mode: any): (string|nil,integer|nil)
 ---@field fs_read async fun(fd: integer, size: integer, offset?: integer): (string|nil,string|nil)
 ---@field fs_close async fun(fd: integer): (string|nil,boolean|nil)
@@ -35,10 +35,10 @@ local nio = {}
 ---@field fs_mkdir async fun(path: string, mode: integer): (string|nil,boolean|nil)
 ---@field fs_mkdtemp async fun(template: string): (string|nil,string|nil)
 ---@field fs_rmdir async fun(path: string): (string|nil,boolean|nil)
----@field fs_stat async fun(path: string): (string|nil,nio.uv.Stat|nil)
----@field fs_fstat async fun(fd: integer): (string|nil,nio.uv.Stat|nil)
----@field fs_lstat async fun(path: string): (string|nil,nio.uv.Stat|nil)
----@field fs_statfs async fun(path: string): (string|nil,nio.uv.StatFs|nil)
+---@field fs_stat async fun(path: string): (string|nil,uv.aliases.fs_stat_table|nil)
+---@field fs_fstat async fun(fd: integer): (string|nil,uv.aliases.fs_stat_table|nil)
+---@field fs_lstat async fun(path: string): (string|nil,uv.aliases.fs_stat_table|nil)
+---@field fs_statfs async fun(path: string): (string|nil,uv.aliases.fs_statfs_stats|nil)
 ---@field fs_rename async fun(old_path: string, new_path: string): (string|nil,boolean|nil)
 ---@field fs_fsync async fun(fd: integer): (string|nil,boolean|nil)
 ---@field fs_fdatasync async fun(fd: integer): (string|nil,boolean|nil)
@@ -57,57 +57,15 @@ local nio = {}
 ---@field fs_fchown async fun(fd: integer, uid: integer, gid: integer): (string|nil,boolean|nil)
 ---@field fs_lchown async fun(path: string, uid: integer, gid: integer): (string|nil,boolean|nil)
 ---@field fs_copyfile async fun(path: any, new_path: any, flags?: any): (string|nil,boolean|nil)
----@field fs_opendir async fun(path: string, entries?: integer): (string|nil,nio.uv.Dir|nil)
----@field fs_readdir async fun(dir: nio.uv.Dir): (string|nil,nio.uv.DirEntry[]|nil)
----@field fs_closedir async fun(dir: nio.uv.Dir): (string|nil,boolean|nil)
----@field fs_scandir async fun(path: string): (string|nil,nio.uv.FsT|nil)
----@field shutdown async fun(stream: nio.uv.Stream): string|nil
----@field listen async fun(stream: nio.uv.Stream, backlog: integer): string|nil
----@field write async fun(stream: nio.uv.Stream, data: string|string[]): string|nil
----@field write2 async fun(stream: nio.uv.Stream, data: string|string[], send_handle: nio.uv.Stream): string|nil
+---@field fs_opendir async fun(path: string, entries?: integer): (string|nil,luv_dir_t|nil)
+---@field fs_readdir async fun(dir: luv_dir_t): (string|nil,uv.aliases.fs_readdir_entries[]|nil)
+---@field fs_closedir async fun(dir: luv_dir_t): (string|nil,boolean|nil)
+---@field fs_scandir async fun(path: string): (string|nil,uv_fs_t|nil)
+---@field shutdown async fun(stream: uv_stream_t): string|nil
+---@field listen async fun(stream: uv_stream_t): string|nil
+---@field write async fun(stream: uv_stream_t): string|nil
+---@field write2 async fun(stream: uv_stream_t, data: string|string[], send_handle: uv_stream_t): string|nil
 nio.uv = {}
-
----@class nio.uv.FsT
-
----@class nio.uv.Handle
-
----@class nio.uv.Stream : nio.uv.Handle
-
----@class nio.uv.Stat
----@field dev integer
----@field mode integer
----@field nlink integer
----@field uid integer
----@field gid integer
----@field rdev integer
----@field ino integer
----@field size integer
----@field blksize integer
----@field blocks integer
----@field flags integer
----@field gen integer
----@field atime nio.uv.StatTime
----@field mtime nio.uv.StatTime
----@field ctime nio.uv.StatTime
----@field birthtime nio.uv.StatTime
----@field type string
-
----@class nio.uv.StatTime
----@field sec integer
----@field nsec integer
-
----@class nio.uv.StatFs
----@field type integer
----@field bsize integer
----@field blocks integer
----@field bfree integer
----@field bavail integer
----@field files integer
----@field ffree integer
-
----@class nio.uv.Dir
-
----@class nio.uv.DirEntry
 
 ---@nodoc
 local function add(name, argc)

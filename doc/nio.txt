@@ -375,7 +375,7 @@ information.
 <
 
 Fields~
-{close} `(async fun(handle: nio.uv.Handle))`
+{close} `(async fun(handle: uv_handle_t))`
 {fs_open} `(async fun(path: any, flags: any, mode: any):
 (string|nil,integer|nil))`
 {fs_read} `(async fun(fd: integer, size: integer, offset?: integer):
@@ -388,10 +388,14 @@ Fields~
 (string|nil,boolean|nil))`
 {fs_mkdtemp} `(async fun(template: string): (string|nil,string|nil))`
 {fs_rmdir} `(async fun(path: string): (string|nil,boolean|nil))`
-{fs_stat} `(async fun(path: string): (string|nil,nio.uv.Stat|nil))`
-{fs_fstat} `(async fun(fd: integer): (string|nil,nio.uv.Stat|nil))`
-{fs_lstat} `(async fun(path: string): (string|nil,nio.uv.Stat|nil))`
-{fs_statfs} `(async fun(path: string): (string|nil,nio.uv.StatFs|nil))`
+{fs_stat} `(async fun(path: string):
+(string|nil,uv.aliases.fs_stat_table|nil))`
+{fs_fstat} `(async fun(fd: integer):
+(string|nil,uv.aliases.fs_stat_table|nil))`
+{fs_lstat} `(async fun(path: string):
+(string|nil,uv.aliases.fs_stat_table|nil))`
+{fs_statfs} `(async fun(path: string):
+(string|nil,uv.aliases.fs_statfs_stats|nil))`
 {fs_rename} `(async fun(old_path: string, new_path: string):
 (string|nil,boolean|nil))`
 {fs_fsync} `(async fun(fd: integer): (string|nil,boolean|nil))`
@@ -425,64 +429,16 @@ length: integer): (string|nil,integer|nil))`
 {fs_copyfile} `(async fun(path: any, new_path: any, flags?: any):
 (string|nil,boolean|nil))`
 {fs_opendir} `(async fun(path: string, entries?: integer):
-(string|nil,nio.uv.Dir|nil))`
-{fs_readdir} `(async fun(dir: nio.uv.Dir):
-(string|nil,nio.uv.DirEntry[]|nil))`
-{fs_closedir} `(async fun(dir: nio.uv.Dir): (string|nil,boolean|nil))`
-{fs_scandir} `(async fun(path: string): (string|nil,nio.uv.FsT|nil))`
-{shutdown} `(async fun(stream: nio.uv.Stream): string|nil)`
-{listen} `(async fun(stream: nio.uv.Stream, backlog: integer): string|nil)`
-{write} `(async fun(stream: nio.uv.Stream, data: string|string[]):
-string|nil)`
-{write2} `(async fun(stream: nio.uv.Stream, data: string|string[],
-send_handle: nio.uv.Stream): string|nil)`
-
-                                                                    *nio.uv.FsT*
-
-                                                                 *nio.uv.Handle*
-
-                                                                 *nio.uv.Stream*
-Inherits: `nio.uv.Handle`
-
-
-                                                                   *nio.uv.Stat*
-Fields~
-{dev} `(integer)`
-{mode} `(integer)`
-{nlink} `(integer)`
-{uid} `(integer)`
-{gid} `(integer)`
-{rdev} `(integer)`
-{ino} `(integer)`
-{size} `(integer)`
-{blksize} `(integer)`
-{blocks} `(integer)`
-{flags} `(integer)`
-{gen} `(integer)`
-{atime} `(nio.uv.StatTime)`
-{mtime} `(nio.uv.StatTime)`
-{ctime} `(nio.uv.StatTime)`
-{birthtime} `(nio.uv.StatTime)`
-{type} `(string)`
-
-                                                               *nio.uv.StatTime*
-Fields~
-{sec} `(integer)`
-{nsec} `(integer)`
-
-                                                                 *nio.uv.StatFs*
-Fields~
-{type} `(integer)`
-{bsize} `(integer)`
-{blocks} `(integer)`
-{bfree} `(integer)`
-{bavail} `(integer)`
-{files} `(integer)`
-{ffree} `(integer)`
-
-                                                                    *nio.uv.Dir*
-
-                                                               *nio.uv.DirEntry*
+(string|nil,luv_dir_t|nil))`
+{fs_readdir} `(async fun(dir: luv_dir_t):
+(string|nil,uv.aliases.fs_readdir_entries[]|nil))`
+{fs_closedir} `(async fun(dir: luv_dir_t): (string|nil,boolean|nil))`
+{fs_scandir} `(async fun(path: string): (string|nil,uv_fs_t|nil))`
+{shutdown} `(async fun(stream: uv_stream_t): string|nil)`
+{listen} `(async fun(stream: uv_stream_t): string|nil)`
+{write} `(async fun(stream: uv_stream_t): string|nil)`
+{write2} `(async fun(stream: uv_stream_t, data: string|string[], send_handle:
+uv_stream_t): string|nil)`
 
 
 ==============================================================================
