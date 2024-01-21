@@ -96,6 +96,13 @@ Parameters~
 Return~
 `(any[])` Results of all functions
 
+                                                            *nio.current_task()*
+`current_task`()
+
+Get the current running task, if any.
+Return~
+`(nio.tasks.Task|nil)`
+
                                                                    *nio.first()*
 `first`({functions})
 

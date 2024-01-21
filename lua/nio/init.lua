@@ -121,6 +121,12 @@ function nio.gather(functions)
   return sorted
 end
 
+--- Get the current running task, if any.
+---@return nio.tasks.Task|nil
+function nio.current_task()
+  return tasks.current_task()
+end
+
 --- Run a collection of async functions concurrently and return the result of
 --- the first to finish.
 ---@async
