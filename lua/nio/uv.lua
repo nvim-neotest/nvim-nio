@@ -63,7 +63,7 @@ local nio = {}
 ---@field fs_scandir async fun(path: string): (string|nil,uv_fs_t|nil)
 ---@field shutdown async fun(stream: uv_stream_t): string|nil
 ---@field listen async fun(stream: uv_stream_t): string|nil
----@field write async fun(stream: uv_stream_t): string|nil
+---@field write async fun(stream: uv_stream_t, data: string|string[]): uv.uv_write_t|nil
 ---@field write2 async fun(stream: uv_stream_t, data: string|string[], send_handle: uv_stream_t): string|nil
 nio.uv = {}
 
@@ -78,7 +78,7 @@ local function add(name, argc)
   nio.uv[name] = ret
 end
 
-add("close", 4) -- close a handle
+add("close", 2) -- close a handle
 -- filesystem operations
 add("fs_open", 4)
 add("fs_read", 4)
