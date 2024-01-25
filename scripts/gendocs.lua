@@ -11,11 +11,11 @@ H.pattern_sets = {
   -- Determine if line is a function definition. Captures function name and
   -- arguments. For reference see '2.5.9 – Function Definitions' in Lua manual.
   afterline_fundef = {
-    '^function%s+(%S-)(%b())',             -- Regular definition
-    '^local%s+function%s+(%S-)(%b())',     -- Local definition
-    '^(%S+)%s*=%s*function(%b())',         -- Regular assignment
-    '^(%S+)%s*=%s*nio.create%(function(%b())',         -- Regular assignment
-    '^local%s+(%S+)%s*=%s*function(%b())', -- Local assignment
+    '^function%s+(%S-)(%b())',                 -- Regular definition
+    '^local%s+function%s+(%S-)(%b())',         -- Local definition
+    '^(%S+)%s*=%s*function(%b())',             -- Regular assignment
+    '^(%S+)%s*=%s*nio.create%(function(%b())', -- Regular assignment
+    '^local%s+(%S+)%s*=%s*function(%b())',     -- Local assignment
   },
   -- Determine if line is a general assignment
   afterline_assign = {
@@ -843,6 +843,8 @@ minidoc.generate(
     "./lua/nio/init.lua",
     "./lua/nio/control.lua",
     "./lua/nio/lsp.lua",
+    "./lua/nio/process.lua",
+    "./lua/nio/streams.lua",
     "./lua/nio/uv.lua",
     "./lua/nio/ui.lua",
     "./lua/nio/tests.lua",

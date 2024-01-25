@@ -5,6 +5,7 @@ local uv = require("nio.uv")
 local tests = require("nio.tests")
 local ui = require("nio.ui")
 local lsp = require("nio.lsp")
+local process = require("nio.process")
 
 ---@tag nvim-nio
 
@@ -26,6 +27,7 @@ nio.ui = ui
 nio.tests = tests
 nio.tasks = tasks
 nio.lsp = lsp
+nio.process = process
 
 --- Run a function in an async context. This is the entrypoint to all async
 --- functionality.

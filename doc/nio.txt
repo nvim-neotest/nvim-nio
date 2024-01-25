@@ -6,6 +6,8 @@ nvim-nio                                                              *nvim-nio*
   nio....................................................................|nio|
   nio.control....................................................|nio.control|
   nio.lsp............................................................|nio.lsp|
+  nio.process....................................................|nio.process|
+  nio.streams....................................................|nio.streams|
   nio.uv..............................................................|nio.uv|
   nio.ui..............................................................|nio.ui|
   nio.tests........................................................|nio.tests|
@@ -350,6 +352,108 @@ Return~
 
 
 ==============================================================================
+nio.process                                                        *nio.process*
+
+
+                                                           *nio.process.Process*
+Wrapper for a running process, providing access to its stdio streams and
+methods to interact with it.
+
+Fields~
+{pid} `(integer)` ID of the invoked process
+{signal} `(fun(signal: integer|uv.aliases.signals))` Send a signal to
+the process
+{result} `(async fun(): number)` Wait for the process to exit and return the
+exit code
+{stdin} `(nio.streams.OSStreamWriter)` Stream to write to the process stdin.
+{stdout} `(nio.streams.OSStreamReader)` Stream to read from the process
+stdout.
+{stderr} `(nio.streams.OSStreamReader)` Stream to read from the process
+stderr.
+
+                                                             *nio.process.run()*
+`run`({opts})
+
+Run a process asynchronously.
+>lua
+ local first = nio.process.run({
+   cmd = "printf", args = { "hello" }
+ })
+
+ local second = nio.process.run({
+   cmd = "cat", stdin = first.stdout
+ })
+
+ local output = second.stdout.read()
+ print(output)
+<
+Parameters~
+{opts} `(nio.process.RunOpts)`
+Return~
+`(nio.process.Process)`
+
+                                                           *nio.process.RunOpts*
+Fields~
+{cmd} `(string)` Command to run
+{args?} `(string[])` Arguments to pass to the command
+{stdin?} `(integer|nio.streams.OSStreamReader|uv.uv_pipe_t|uv_pipe_t)` Stream,
+pipe or file descriptor to use as stdin.
+{stdout?} `(integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t)`
+Stream,
+pipe or file descriptor to use as stdout.
+{stderr?} `(integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t)`
+Stream,
+pipe or file descriptor to use as stderr.
+{env?} `(table<string, string>)` Environment variables to pass to the
+process
+{cwd?} `(string)` Current working directory of the process
+{uid?} `(integer)` User ID of the process
+{gid?} `(integer)` Group ID of the process
+
+
+==============================================================================
+nio.streams                                                        *nio.streams*
+
+
+                                                            *nio.streams.Stream*
+Fields~
+{close} `(async fun(): nil)` Close the stream
+
+                                                            *nio.streams.Reader*
+Inherits: `nio.streams.Stream`
+
+Fields~
+{read} `(async fun(n?: integer): string)` Read data from the stream,
+optionally up to n bytes otherwise until EOF is reached
+
+                                                            *nio.streams.Writer*
+Inherits: `nio.streams.Stream`
+
+Fields~
+{write} `(async fun(data: string): nil)` Write data to the stream
+
+                                                          *nio.streams.OSStream*
+Inherits: `nio.streams.Stream`
+
+Fields~
+{fd} `(integer)` The file descriptor of the stream
+
+                                                      *nio.streams.StreamReader*
+Inherits: `nio.streams.Reader, nio.streams.Stream`
+
+Inherits: `nio.streams.Writer, nio.streams.Stream`
+                                                      *nio.streams.StreamWriter*
+
+
+                                                    *nio.streams.OSStreamReader*
+Inherits: `nio.streams.StreamReader, nio.streams.OSStream`
+
+Inherits: `nio.streams.StreamWriter, nio.streams.OSStream`
+                                                    *nio.streams.OSStreamWriter*
+
+
+
+==============================================================================
 nio.uv                                                                  *nio.uv*
 
 
@@ -436,7 +540,8 @@ length: integer): (string|nil,integer|nil))`
 {fs_scandir} `(async fun(path: string): (string|nil,uv_fs_t|nil))`
 {shutdown} `(async fun(stream: uv_stream_t): string|nil)`
 {listen} `(async fun(stream: uv_stream_t): string|nil)`
-{write} `(async fun(stream: uv_stream_t): string|nil)`
+{write} `(async fun(stream: uv_stream_t, data: string|string[]):
+uv.uv_write_t|nil)`
 {write2} `(async fun(stream: uv_stream_t, data: string|string[], send_handle:
 uv_stream_t): string|nil)`
 
