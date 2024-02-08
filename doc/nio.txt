@@ -355,14 +355,13 @@ Return~
 nio.process                                                        *nio.process*
 
 
-                                                           *nio.process.Process*
 Wrapper for a running process, providing access to its stdio streams and
 methods to interact with it.
-
+                                                           *nio.process.Process*
 Fields~
 {pid} `(integer)` ID of the invoked process
-{signal} `(fun(signal: integer|uv.aliases.signals))` Send a signal to
-the process
+{signal} `(fun(signal: integer|uv.aliases.signals))` Send a signal to the
+process
 {result} `(async fun(): number)` Wait for the process to exit and return the
 exit code
 {stdin} `(nio.streams.OSStreamWriter)` Stream to write to the process stdin.
@@ -390,7 +389,9 @@ Run a process asynchronously.
 Parameters~
 {opts} `(nio.process.RunOpts)`
 Return~
-`(nio.process.Process)`
+`(nio.process.Process?)` Process object for the running process
+Return~
+`(string?)` Error message if an error occurred
 
                                                            *nio.process.RunOpts*
 Fields~
@@ -417,20 +418,23 @@ nio.streams                                                        *nio.streams*
 
                                                             *nio.streams.Stream*
 Fields~
-{close} `(async fun(): nil)` Close the stream
+{close} `(async fun(): string|nil)` Close the stream. Returns an error message
+if an error occurred.
 
                                                             *nio.streams.Reader*
 Inherits: `nio.streams.Stream`
 
 Fields~
-{read} `(async fun(n?: integer): string)` Read data from the stream,
-optionally up to n bytes otherwise until EOF is reached
+{read} `(async fun(n?: integer): string,string)` Read data from the stream,
+optionally up to n bytes otherwise until EOF is reached. Returns the data read
+or error message if an error occurred.
 
                                                             *nio.streams.Writer*
 Inherits: `nio.streams.Stream`
 
 Fields~
-{write} `(async fun(data: string): nil)` Write data to the stream
+{write} `(async fun(data: string): string|nil)` Write data to the stream.
+Returns an error message if an error occurred.
 
                                                           *nio.streams.OSStream*
 Inherits: `nio.streams.Stream`
@@ -480,8 +484,8 @@ information.
 
 Fields~
 {close} `(async fun(handle: uv_handle_t))`
-{fs_open} `(async fun(path: any, flags: any, mode: any):
-(string|nil,integer|nil))`
+{fs_open} `(async fun(path: any, flags: uv.aliases.fs_access_flags|integer,
+mode: any): (string|nil,integer|nil))`
 {fs_read} `(async fun(fd: integer, size: integer, offset?: integer):
 (string|nil,string|nil))`
 {fs_close} `(async fun(fd: integer): (string|nil,boolean|nil))`

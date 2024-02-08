@@ -2,11 +2,19 @@ local nio = require("nio")
 local a = nio.tests
 
 describe("process", function()
-  a.it("captures stdout", function()
-    local process = nio.process.run({
+  a.it("returns process ID", function()
+    local process = assert(nio.process.run({
       cmd = "printf",
       args = { "hello" },
-    })
+    }))
+    assert.True(0 < process.pid)
+  end)
+
+  a.it("captures stdout", function()
+    local process = assert(nio.process.run({
+      cmd = "printf",
+      args = { "hello" },
+    }))
     process.result()
     local output = process.stdout.read()
 
@@ -16,18 +24,44 @@ describe("process", function()
   end)
 
   a.it("captures stderr", function()
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = vim.loop.exepath(),
       args = { "--bad" },
-    })
+    }))
     process.result()
     local output = process.stderr.read()
 
     assert.Not.equal("", output)
   end)
 
+  a.it("returns spawn error", function()
+    local process, err = nio.process.run({
+      cmd = "not_a_real_command",
+    })
+    assert.Nil(process)
+    assert.equal("ENOENT: no such file or directory", err)
+  end)
+
+  a.it("returns spawn error with bad stdin pipe", function()
+    local process, err = nio.process.run({
+      cmd = "cat",
+      stdin = 1000,
+    })
+    assert.equal("EBADF: bad file descriptor", err)
+    assert.Nil(process)
+  end)
+
+  a.it("returns spawn error with bad stdout pipe", function()
+    local process, err = nio.process.run({
+      cmd = "cat",
+      stdout = 1000,
+    })
+    assert.equal("EBADF: bad file descriptor", err)
+    assert.Nil(process)
+  end)
+
   a.it("sends input", function()
-    local process = nio.process.run({ cmd = "cat" })
+    local process = assert(nio.process.run({ cmd = "cat" }))
     process.stdin.write("hello")
     process.stdin.close()
 
@@ -36,15 +70,15 @@ describe("process", function()
   end)
 
   a.it("pipes from another process", function()
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = "printf",
       args = { "hello" },
-    })
+    }))
 
-    local second_process = nio.process.run({
+    local second_process = assert(nio.process.run({
       cmd = "cat",
       stdin = process.stdout,
-    })
+    }))
     second_process.result()
     local output = second_process.stdout.read()
     assert.equal(output, "hello")
@@ -53,10 +87,10 @@ describe("process", function()
   a.it("reads input from uv_pipe_t", function()
     local pipe = assert(vim.loop.new_pipe())
 
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = "cat",
       stdin = pipe,
-    })
+    }))
 
     pipe:write("hello")
     nio.uv.shutdown(pipe)
@@ -68,13 +102,12 @@ describe("process", function()
 
   a.it("writes stdout to uv_pipe_t", function()
     local pipe = assert(vim.loop.new_pipe())
-    A(pipe:fileno())
 
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = "printf",
       args = { "hello" },
       stdout = pipe,
-    })
+    }))
 
     local output = nio.control.future()
     pipe:read_start(function(_, data)
@@ -84,7 +117,6 @@ describe("process", function()
     end)
 
     process.result()
-    A(pipe:fileno())
 
     pipe:close()
     assert.equal(output.wait(), "hello")
@@ -93,14 +125,17 @@ describe("process", function()
   a.it("writes stderr to uv_pipe_t", function()
     local pipe = assert(vim.loop.new_pipe())
 
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = vim.loop.exepath(),
       args = { "--bad" },
       stderr = pipe,
-    })
+    }))
 
     local output = nio.control.future()
     pipe:read_start(function(_, data)
+      if output.is_set() then
+        return
+      end
       output.set(data)
     end)
 
@@ -113,10 +148,10 @@ describe("process", function()
   a.it("sends signals to pid", function()
     local pipe = assert(vim.loop.new_pipe())
 
-    local process = nio.process.run({
+    local process = assert(nio.process.run({
       cmd = "cat",
       stdin = pipe,
-    })
+    }))
 
     process.signal(15)
 

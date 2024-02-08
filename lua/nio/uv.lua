@@ -27,7 +27,7 @@ local nio = {}
 ---
 ---@class nio.uv
 ---@field close async fun(handle: uv_handle_t)
----@field fs_open async fun(path: any, flags: any, mode: any): (string|nil,integer|nil)
+---@field fs_open async fun(path: any, flags: uv.aliases.fs_access_flags|integer, mode: any): (string|nil,integer|nil)
 ---@field fs_read async fun(fd: integer, size: integer, offset?: integer): (string|nil,string|nil)
 ---@field fs_close async fun(fd: integer): (string|nil,boolean|nil)
 ---@field fs_unlink async fun(path: string): (string|nil,boolean|nil)

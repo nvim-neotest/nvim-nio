@@ -6,20 +6,15 @@ local nio = {}
 ---@class nio.process
 nio.process = {}
 
----@class nio.process.Process
 --- Wrapper for a running process, providing access to its stdio streams and
 --- methods to interact with it.
----
+---@class nio.process.Process
 ---@field pid integer ID of the invoked process
----@field signal fun(signal: integer|uv.aliases.signals) Send a signal to
---- the process
----@field result async fun(): number Wait for the process to exit and return the
---- exit code
+---@field signal fun(signal: integer|uv.aliases.signals) Send a signal to the process
+---@field result async fun(): number Wait for the process to exit and return the exit code
 ---@field stdin nio.streams.OSStreamWriter Stream to write to the process stdin.
----@field stdout nio.streams.OSStreamReader Stream to read from the process
---- stdout.
----@field stderr nio.streams.OSStreamReader Stream to read from the process
---- stderr.
+---@field stdout nio.streams.OSStreamReader Stream to read from the process stdout.
+---@field stderr nio.streams.OSStreamReader Stream to read from the process stderr.
 
 --- Run a process asynchronously.
 --- ```lua
@@ -35,7 +30,8 @@ nio.process = {}
 ---  print(output)
 --- ```
 ---@param opts nio.process.RunOpts
----@return nio.process.Process
+---@return nio.process.Process? Process object for the running process
+---@return string? Error message if an error occurred
 function nio.process.run(opts)
   opts = vim.tbl_extend("force", { hide = true }, opts)
 
@@ -44,13 +40,22 @@ function nio.process.run(opts)
 
   local exit_code_future = control.future()
 
-  local stdout = streams.reader(opts.stdout)
-  local stderr = streams.reader(opts.stderr)
-  local stdin = streams.writer(opts.stdin)
+  local stdout, stdout_err = streams.reader(opts.stdout)
+  if not stdout then
+    return nil, stdout_err
+  end
+  local stderr, stderr_err = streams.reader(opts.stderr)
+  if not stderr then
+    return nil, stderr_err
+  end
+  local stdin, stdin_err = streams.writer(opts.stdin)
+  if not stdin then
+    return nil, stdin_err
+  end
 
   local stdio = { stdin.pipe, stdout.pipe, stderr.pipe }
 
-  local handle, pid, spawn_err = vim.loop.spawn(cmd, {
+  local handle, pid_or_error = vim.loop.spawn(cmd, {
     args = args,
     stdio = stdio,
     env = opts.env,
@@ -64,26 +69,41 @@ function nio.process.run(opts)
     exit_code_future.set(code)
   end)
 
-  assert(not spawn_err, spawn_err)
+  if not handle then
+    return nil, pid_or_error
+  end
+  local stdin_fd, stdin_fd_err = stdin.pipe:fileno()
+  if not stdin_fd then
+    return nil, stdin_fd_err
+  end
+  local stdout_fd, stdout_fd_err = stdout.pipe:fileno()
+  if not stdout_fd then
+    return nil, stdout_fd_err
+  end
+  local stderr_fd, stderr_fd_err = stderr.pipe:fileno()
+  if not stderr_fd then
+    return nil, stderr_fd_err
+  end
 
+  ---@type nio.process.Process
   local process = {
-    pid = pid,
+    pid = pid_or_error,
     signal = function(signal)
       vim.loop.process_kill(handle, signal)
     end,
     stdin = {
       write = stdin.write,
-      fd = stdin.pipe:fileno(),
+      fd = stdin_fd,
       close = stdin.close,
     },
     stdout = {
       read = stdout.read,
-      fd = stdout.pipe:fileno(),
+      fd = stdout_fd,
       close = stdout.close,
     },
     stderr = {
       read = stderr.read,
-      fd = stderr.pipe:fileno(),
+      fd = stderr_fd,
       close = stderr.close,
     },
     result = exit_code_future.wait,
