@@ -7,11 +7,19 @@ both common asynchronous primitives and asynchronous APIs for Neovim's core.
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+  - [`nio.control`](#niocontrol): Primitives for flow control in async functions
+  - [`nio.lsp`](#niolsp): A fully typed and documented async LSP client library, generated from the LSP specification.
+  - [`nio.file`](#niofile): Open and operate on files asynchronously
+  - [`nio.process`](#nioprocess): Run and control subprocesses asynchronously
+  - [`nio.uv`](#niouv): Async versions of `vim.loop` functions
+  - [`nio.ui`](#nioui): Async versions of vim.ui functions
+  - [`nio.tests`](#niotests): Async versions of plenary.nvim's test functions
+  - [Third Party Integration](#third-party-integration)
 
 ## Motivation
 
 Work has been ongoing around async libraries in Neovim for years, with a lot of discussion around a [Neovim core
-implementation](https://github.com/neovim/neovim/issues/19624). A lot of the motivation behind this library can be seen
+implementation](https://github.com/neovim/neovim/issues/19624). Much of the motivation behind this library can be seen
 in that discussion.
 
 nvim-nio aims to provide a simple interface to Lua coroutines that doesn't feel like it gets in the way of your actual
@@ -82,7 +90,9 @@ For simple use cases tasks won't be too important but they support features such
 
 nvim-nio comes with built-in modules to help with writing async code. See `:help nvim-nio` for extensive documentation.
 
-`nio.control`: Primitives for flow control in async functions
+### `nio.control`
+
+Primitives for flow control in async functions
 
 ```lua
 local event = nio.control.event()
@@ -104,7 +114,9 @@ local listeners = {
 }
 ```
 
-`nio.lsp`: A fully typed and documented async LSP client library, generated from the LSP specification.
+### `nio.lsp`
+
+A fully typed and documented async LSP client library, generated from the LSP specification.
 
 ```lua
 local client = nio.lsp.get_clients({ name = "lua_ls" })[1]
@@ -120,7 +132,39 @@ for _, token in pairs(response.data) do
 end
 ```
 
-`nio.uv`: Async versions of `vim.loop` functions
+### `nio.file`
+
+Open and operate on files asynchronously
+
+```lua
+local file = nio.file.open("test.txt", "w+")
+
+file.write("Hello, World!\n")
+
+local content = file.read(nil, 0)
+print(content)
+```
+
+### `nio.process`
+
+Run and control subprocesses asynchronously
+
+```lua
+local first = nio.process.run({
+  cmd = "printf", args = { "hello" }
+})
+
+local second = nio.process.run({
+  cmd = "cat", stdin = first.stdout
+})
+
+local output = second.stdout.read()
+print(output)
+```
+
+### `nio.uv`
+
+Async versions of `vim.loop` functions
 
 ```lua
 local file_path = "README.md"
@@ -140,14 +184,18 @@ assert(not close_err, close_err)
 print(data)
 ```
 
-`nio.ui`: Async versions of vim.ui functions
+### `nio.ui`
+
+Async versions of vim.ui functions
 
 ```lua
 local value = nio.ui.input({ prompt = "Enter something: " })
 print(("You entered: %s"):format(value))
 ```
 
-`nio.tests`: Async versions of plenary.nvim's test functions
+### `nio.tests`
+
+Async versions of plenary.nvim's test functions
 
 ```lua
 nio.tests.it("notifies listeners", function()
@@ -165,6 +213,8 @@ nio.tests.it("notifies listeners", function()
   assert.equals(10, notified)
 end)
 ```
+
+### Third Party Integration
 
 It is also easy to wrap callback style functions to make them asynchronous using `nio.wrap`, which allows easily
 integrating third-party APIs with nvim-nio.

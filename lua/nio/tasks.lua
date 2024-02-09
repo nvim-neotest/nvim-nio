@@ -173,8 +173,8 @@ end
 ---@package
 ---@field opts nio.WrapOpts
 ---@nodoc
-function nio.tasks.wrap(func, argc, args)
-  args = vim.tbl_extend("keep", args or {}, { strict = true })
+function nio.tasks.wrap(func, argc, opts)
+  opts = vim.tbl_extend("keep", opts or {}, { strict = true })
   vim.validate({ func = { func, "function" }, argc = { argc, "number" } })
   local protected = function(...)
     local args = { ... }
@@ -189,7 +189,7 @@ function nio.tasks.wrap(func, argc, args)
 
   return function(...)
     if not current_non_main_co() then
-      if args.strict then
+      if opts.strict then
         error("Cannot call async function from non-async context")
       end
       return func(...)

@@ -84,6 +84,42 @@ describe("process", function()
     assert.equal(output, "hello")
   end)
 
+  a.it("pipes from file", function()
+    local path = assert(nio.fn.tempname())
+
+    local write_file = assert(nio.file.open(path, "w+"))
+
+    write_file.write("hello")
+    write_file.close()
+
+    local read_file = assert(nio.file.open(path, "r"))
+
+    local process = assert(nio.process.run({
+      cmd = "cat",
+      stdin = read_file,
+    }))
+    process.result()
+    local output = process.stdout.read()
+    assert.equal(output, "hello")
+  end)
+
+  a.it("pipes to file", function()
+    local path = assert(nio.fn.tempname())
+
+    local file = assert(nio.file.open(path, "w+"))
+
+    local process = assert(nio.process.run({
+      cmd = "cat",
+      stdout = file,
+    }))
+    process.stdin.write("hello")
+    process.stdin.close()
+    process.result()
+
+    local output = file.read(nil, 0)
+    assert.equal(output, "hello")
+  end)
+
   a.it("reads input from uv_pipe_t", function()
     local pipe = assert(vim.loop.new_pipe())
 

@@ -843,6 +843,7 @@ minidoc.generate(
     "./lua/nio/init.lua",
     "./lua/nio/control.lua",
     "./lua/nio/lsp.lua",
+    "./lua/nio/file.lua",
     "./lua/nio/process.lua",
     "./lua/nio/streams.lua",
     "./lua/nio/uv.lua",

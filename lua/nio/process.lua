@@ -18,6 +18,17 @@ nio.process = {}
 
 --- Run a process asynchronously.
 --- ```lua
+---  local process = nio.process.run({
+---    cmd = "printf", args = { "hello" }
+---  })
+---
+---  local output = second.stdout.read()
+---  print(output)
+--- ```
+---
+--- Processes can be chained together, passing output of one process as input to
+--- another.
+--- ```lua
 ---  local first = nio.process.run({
 ---    cmd = "printf", args = { "hello" }
 ---  })
@@ -27,6 +38,23 @@ nio.process = {}
 ---  })
 ---
 ---  local output = second.stdout.read()
+---  print(output)
+--- ```
+---
+--- The stdio fields can also be file objects.
+--- ```lua
+---  local path = nio.fn.tempname()
+---
+---  local file = nio.file.open(path, "w+")
+---
+---  local process = nio.process.run({
+---    cmd = "printf",
+---    args = { "hello" },
+---    stdout = file,
+---  })
+---  process.result()
+---
+---  local output = file.read(nil, 0)
 ---  print(output)
 --- ```
 ---@param opts nio.process.RunOpts
@@ -40,15 +68,15 @@ function nio.process.run(opts)
 
   local exit_code_future = control.future()
 
-  local stdout, stdout_err = streams.reader(opts.stdout)
+  local stdout, stdout_err = streams._socket_reader(opts.stdout)
   if not stdout then
     return nil, stdout_err
   end
-  local stderr, stderr_err = streams.reader(opts.stderr)
+  local stderr, stderr_err = streams._socket_reader(opts.stderr)
   if not stderr then
     return nil, stderr_err
   end
-  local stdin, stdin_err = streams.writer(opts.stdin)
+  local stdin, stdin_err = streams._writer(opts.stdin)
   if not stdin then
     return nil, stdin_err
   end
@@ -114,12 +142,12 @@ end
 ---@class nio.process.RunOpts
 ---@field cmd string Command to run
 ---@field args? string[] Arguments to pass to the command
----@field stdin? integer|nio.streams.OSStreamReader|uv.uv_pipe_t|uv_pipe_t Stream,
---- pipe or file descriptor to use as stdin.
----@field stdout? integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t Stream,
---- pipe or file descriptor to use as stdout.
----@field stderr? integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t Stream,
---- pipe or file descriptor to use as stderr.
+---@field stdin? integer|nio.streams.OSStream|uv_pipe_t Stream, pipe or file
+---descriptor to use as stdin.
+---@field stdout? integer|nio.streams.OSStream|uv_pipe_t Stream, pipe or file
+---descriptor to use as stdout.
+---@field stderr? integer|nio.streams.OSStream|uv_pipe_t Stream, pipe or file
+---descriptor to use as stderr.
 ---@field env? table<string, string> Environment variables to pass to the
 --- process
 ---@field cwd? string Current working directory of the process

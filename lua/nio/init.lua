@@ -4,6 +4,7 @@ local control = require("nio.control")
 local uv = require("nio.uv")
 local tests = require("nio.tests")
 local ui = require("nio.ui")
+local file = require("nio.file")
 local lsp = require("nio.lsp")
 local process = require("nio.process")
 
@@ -28,6 +29,7 @@ nio.tests = tests
 nio.tasks = tasks
 nio.lsp = lsp
 nio.process = process
+nio.file = file
 
 --- Run a function in an async context. This is the entrypoint to all async
 --- functionality.
