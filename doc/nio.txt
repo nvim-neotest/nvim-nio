@@ -352,6 +352,47 @@ Return~
 
 
 ==============================================================================
+nio.file                                                              *nio.file*
+
+
+                                                                 *nio.file.File*
+Inherits: `nio.streams.OSStreamReaderWriter`
+
+Fields~
+{read} `(async fun(n: integer?, offset: integer?):string?,string?)` Read data
+from the stream, optionally up to n bytes otherwise until EOF is reached.
+Returns the data read or error message if an error occurred. If offset is
+provided, data will be read from that position in the file, otherwise the
+current position will be used.
+
+                                                               *nio.file.open()*
+`open`({path}, {flags}, {mode})
+
+Open a file with the given flags and mode
+>lua
+ local file = nio.file.open("test.txt", "w+")
+
+ file.write("Hello, World!\n")
+
+ local content = file.read(nil, 0)
+ file.close()
+ print(content)
+<
+Parameters~
+{path} `(string)` The path to the file
+{flags} `(uv.aliases.fs_access_flags|integer?)` The flags to open the file
+with, defaults to "r"
+{mode} `(number?)` The mode to open the file with, defaults to 644
+Return~
+`(nio.file.File?)` File object
+Return~
+`(string?)` Error message if an error occurred while opening
+
+See also ~
+|uv.fs_open|
+
+
+==============================================================================
 nio.process                                                        *nio.process*
 
 
@@ -375,6 +416,17 @@ stderr.
 
 Run a process asynchronously.
 >lua
+ local process = nio.process.run({
+   cmd = "printf", args = { "hello" }
+ })
+
+ local output = second.stdout.read()
+ print(output)
+<
+
+Processes can be chained together, passing output of one process as input to
+another.
+>lua
  local first = nio.process.run({
    cmd = "printf", args = { "hello" }
  })
@@ -384,6 +436,23 @@ Run a process asynchronously.
  })
 
  local output = second.stdout.read()
+ print(output)
+<
+
+The stdio fields can also be file objects.
+>lua
+ local path = nio.fn.tempname()
+
+ local file = nio.file.open(path, "w+")
+
+ local process = nio.process.run({
+   cmd = "printf",
+   args = { "hello" },
+   stdout = file,
+ })
+ process.result()
+
+ local output = file.read(nil, 0)
  print(output)
 <
 Parameters~
@@ -397,14 +466,12 @@ Return~
 Fields~
 {cmd} `(string)` Command to run
 {args?} `(string[])` Arguments to pass to the command
-{stdin?} `(integer|nio.streams.OSStreamReader|uv.uv_pipe_t|uv_pipe_t)` Stream,
-pipe or file descriptor to use as stdin.
-{stdout?} `(integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t)`
-Stream,
-pipe or file descriptor to use as stdout.
-{stderr?} `(integer|nio.streams.OSStreamWriter|uv.uv_pipe_t|uv_pipe_t)`
-Stream,
-pipe or file descriptor to use as stderr.
+{stdin?} `(integer|nio.streams.OSStream|uv_pipe_t)` Stream, pipe or file
+to use as stdin.
+{stdout?} `(integer|nio.streams.OSStream|uv_pipe_t)` Stream, pipe or file
+to use as stdout.
+{stderr?} `(integer|nio.streams.OSStream|uv_pipe_t)` Stream, pipe or file
+to use as stderr.
 {env?} `(table<string, string>)` Environment variables to pass to the
 process
 {cwd?} `(string)` Current working directory of the process
@@ -425,7 +492,7 @@ if an error occurred.
 Inherits: `nio.streams.Stream`
 
 Fields~
-{read} `(async fun(n?: integer): string,string)` Read data from the stream,
+{read} `(async fun(n?: integer): string?,string?)` Read data from the stream,
 optionally up to n bytes otherwise until EOF is reached. Returns the data read
 or error message if an error occurred.
 
@@ -433,8 +500,8 @@ or error message if an error occurred.
 Inherits: `nio.streams.Stream`
 
 Fields~
-{write} `(async fun(data: string): string|nil)` Write data to the stream.
-Returns an error message if an error occurred.
+{write} `(async fun(data: string): string?)` Write data to the stream. Returns
+an error message if an error occurred.
 
                                                           *nio.streams.OSStream*
 Inherits: `nio.streams.Stream`
@@ -454,6 +521,10 @@ Inherits: `nio.streams.StreamReader, nio.streams.OSStream`
 
 Inherits: `nio.streams.StreamWriter, nio.streams.OSStream`
                                                     *nio.streams.OSStreamWriter*
+
+
+                                              *nio.streams.OSStreamReaderWriter*
+Inherits: `nio.streams.OSStreamReader, nio.streams.OSStreamWriter`
 
 
 
