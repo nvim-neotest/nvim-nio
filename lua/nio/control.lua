@@ -16,17 +16,17 @@ nio.control = {}
 --- ```lua
 ---  local event = nio.control.event()
 ---
----  local worker = nio.tasks.run(function()
+---  local worker = nio.run(function()
 ---    nio.sleep(1000)
 ---    event.set()
 ---  end)
 ---
 ---  local listeners = {
----    nio.tasks.run(function()
+---    nio.run(function()
 ---      event.wait()
 ---      print("First listener notified")
 ---    end),
----    nio.tasks.run(function()
+---    nio.run(function()
 ---      event.wait()
 ---      print("Second listener notified")
 ---    end),
@@ -160,7 +160,7 @@ end
 --- ```lua
 ---  local queue = nio.control.queue()
 ---
----  local producer = nio.tasks.run(function()
+---  local producer = nio.run(function()
 ---    for i = 1, 10 do
 ---      nio.sleep(100)
 ---      queue.put(i)

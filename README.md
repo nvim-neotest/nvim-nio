@@ -97,17 +97,17 @@ Primitives for flow control in async functions
 ```lua
 local event = nio.control.event()
 
-local worker = nio.tasks.run(function()
+local worker = nio.run(function()
   nio.sleep(1000)
   event.set()
 end)
 
 local listeners = {
-  nio.tasks.run(function()
+  nio.run(function()
     event.wait()
     print("First listener notified")
   end),
-  nio.tasks.run(function()
+  nio.run(function()
     event.wait()
     print("Second listener notified")
   end),
