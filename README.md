@@ -15,6 +15,7 @@ both common asynchronous primitives and asynchronous APIs for Neovim's core.
   - [`nio.ui`](#nioui): Async versions of vim.ui functions
   - [`nio.tests`](#niotests): Async versions of plenary.nvim's test functions
   - [Third Party Integration](#third-party-integration)
+- [Used By](#used-by)
 
 ## Motivation
 
@@ -231,3 +232,14 @@ nio.run(function()
   print("Slept for 10ms")
 end)
 ```
+
+## Used By
+
+Here are some of the plugins using nvim-nio:
+- [neotest](https://github.com/nvim-neotest/neotest)
+- [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
+- [rest.nvim](https://github.com/rest-nvim/rest.nvim)
+- [rocks.nvim](https://github.com/nvim-neorocks/rocks.nvim)
+- [pathlib.nvim](https://github.com/pysan3/pathlib.nvim)
+
+Please open an issue to add any missing entries!
