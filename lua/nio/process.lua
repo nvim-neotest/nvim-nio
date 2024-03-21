@@ -93,7 +93,7 @@ function nio.process.run(opts)
     verbatim = opts.verbatim,
     detached = opts.detached,
     hide = opts.hide,
-  }, function(_, code)
+  }, function(code, _)
     exit_code_future.set(code)
   end)
 
