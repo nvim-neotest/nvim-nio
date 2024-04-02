@@ -11,10 +11,11 @@ nio.process = {}
 ---@class nio.process.Process
 ---@field pid integer ID of the invoked process
 ---@field signal fun(signal: integer|uv.aliases.signals) Send a signal to the process
----@field result async fun(): number Wait for the process to exit and return the exit code
+---@field result async fun(close: boolean): number,(string|nil)[] Wait for the process to exit and return the exit code, optionally closing all streams.
 ---@field stdin nio.streams.OSStreamWriter Stream to write to the process stdin.
 ---@field stdout nio.streams.OSStreamReader Stream to read from the process stdout.
 ---@field stderr nio.streams.OSStreamReader Stream to read from the process stderr.
+---@field close async fun():(string|nil)[] Close all streams, returning any errors that occurred.
 
 --- Run a process asynchronously.
 --- ```lua
@@ -24,6 +25,8 @@ nio.process = {}
 ---
 ---  local output = second.stdout.read()
 ---  print(output)
+---
+---  process.close()
 --- ```
 ---
 --- Processes can be chained together, passing output of one process as input to
@@ -39,6 +42,9 @@ nio.process = {}
 ---
 ---  local output = second.stdout.read()
 ---  print(output)
+---
+---  first.close()
+---  second.close()
 --- ```
 ---
 --- The stdio fields can also be file objects.
@@ -56,6 +62,8 @@ nio.process = {}
 ---
 ---  local output = file.read(nil, 0)
 ---  print(output)
+---
+---  process.close() -- Closes the file
 --- ```
 ---@param opts nio.process.RunOpts
 ---@return nio.process.Process? Process object for the running process
@@ -114,7 +122,8 @@ function nio.process.run(opts)
   end
 
   ---@type nio.process.Process
-  local process = {
+  local process
+  process = {
     pid = pid_or_error,
     signal = function(signal)
       vim.loop.process_kill(handle, signal)
@@ -134,7 +143,17 @@ function nio.process.run(opts)
       fd = stderr_fd,
       close = stderr.close,
     },
-    result = exit_code_future.wait,
+    result = function(close)
+      local result = exit_code_future.wait()
+      local errors = {}
+      if close then
+        errors = process.close()
+      end
+      return result, errors
+    end,
+    close = function()
+      return { stdin.close(), stdout.close(), stderr.close() }
+    end,
   }
   return process
 end
