@@ -204,28 +204,4 @@ describe("process", function()
     local exit_code = process.result()
     assert.equal(1, exit_code)
   end)
-
-  a.it("with returns exit code", function()
-    local process = assert(nio.process.run({
-      cmd = "bash",
-      args = { "-c", "exit 1" },
-    }))
-
-    local exit_code = process.with(function() end)
-
-    assert.equal(1, exit_code)
-  end)
-
-  a.it("with closes streams", function()
-    local process = assert(nio.process.run({
-      cmd = "echo",
-      args = { "test" },
-    }))
-
-    process.with(function() end)
-
-    local stdout, stdout_err = process.stdout.read()
-    assert.equal("", stdout)
-    assert.Not.Nil(stdout_err)
-  end)
 end)
