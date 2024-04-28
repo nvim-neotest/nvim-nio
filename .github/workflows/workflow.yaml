@@ -1,4 +1,4 @@
-name: neotest Workflow
+name: nvim-nio Workflow
 on:
   push:
     branches:
@@ -75,3 +75,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
+  luarocks-upload:
+    runs-on: ubuntu-22.04
+    needs: release
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get Version 
+        run: echo "LUAROCKS_VERSION=$(git fetch --tags; git describe --abbrev=0 --tags)" >> $GITHUB_ENV
+      - name: LuaRocks Upload
+        uses: nvim-neorocks/luarocks-tag-release@v5
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        with:
+          version: ${{ env.LUAROCKS_VERSION }}
