@@ -42,6 +42,24 @@ describe("task", function()
     assert.Nil(should_be_nil)
   end)
 
+  a.it("cancels immediately", function()
+    local cancelled = nio.control.future()
+    local start = os.time()
+    local reached_end = false
+
+    local task = tasks.run(function()
+      nio.sleep(1000)
+      reached_end = true
+    end, function()
+      cancelled.set(os.time())
+    end)
+    task.cancel()
+    local cancel_time = cancelled.wait()
+
+    assert.False(reached_end)
+    assert.Equal(cancel_time - start, 0)
+  end)
+
   a.it("assigns parent task", function()
     local current = tasks.current_task()
     local task = tasks.run(function()

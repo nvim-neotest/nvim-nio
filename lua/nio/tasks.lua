@@ -60,6 +60,7 @@ end
 function nio.tasks.run(func, cb)
   local co = coroutine.create(func)
   local cancelled = false
+  local step
   local task = { parent = nio.tasks.current_task() }
   if task.parent then
     child_tasks[task.parent] = child_tasks[task.parent] or {}
@@ -75,6 +76,7 @@ function nio.tasks.run(func, cb)
       child.cancel()
     end
     cancelled = true
+    step()
   end
 
   function task.trace()
@@ -104,7 +106,7 @@ function nio.tasks.run(func, cb)
 
   tasks[co] = task
 
-  local function step(...)
+  step = function(...)
     if cancelled then
       close_task(nil, format_error("Task was cancelled"))
       return
