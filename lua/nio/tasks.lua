@@ -50,7 +50,7 @@ local format_error = function(message, traceback)
   return string.format(
     "The coroutine failed with this message: %s\n%s",
     type(message) == "string" and vim.startswith(traceback, message) and ""
-      or ("\n" .. tostring(message)),
+    or ("\n" .. tostring(message)),
     traceback
   )
 end
@@ -69,13 +69,13 @@ function nio.tasks.run(func, cb)
   local future = require("nio").control.future()
 
   function task.cancel()
-    if coroutine.status(co) == "dead" then
+    if cancelled or coroutine.status(co) == "dead" then
       return
     end
+    cancelled = true
     for _, child in pairs(child_tasks[task] or {}) do
       child.cancel()
     end
-    cancelled = true
     step()
   end
 
