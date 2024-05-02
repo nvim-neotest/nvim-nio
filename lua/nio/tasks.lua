@@ -88,6 +88,9 @@ function nio.tasks.run(func, cb)
   end
 
   local function close_task(result, err)
+    if not tasks[co] then
+      return
+    end
     tasks[co] = nil
     if err then
       future.set_error(err)
