@@ -36,7 +36,7 @@ function Logger.new(filename, opts)
   end)()
 
   local function path_join(...)
-    return table.concat(vim.tbl_flatten({ ... }), path_sep)
+    return table.concat(vim.iter({ ... }):flatten():totable(), path_sep)
   end
 
   logger._level = opts.level or vim.log.levels.WARN
@@ -52,7 +52,7 @@ function Logger.new(filename, opts)
   local log_info = vim.loop.fs_stat(logger._filename)
   if log_info and log_info.size > LARGE then
     local warn_msg =
-      string.format("Nio log is large (%d MB): %s", log_info.size / (1000 * 1000), logger._filename)
+        string.format("Nio log is large (%d MB): %s", log_info.size / (1000 * 1000), logger._filename)
     vim.notify(warn_msg, vim.log.levels.WARN)
   end
 

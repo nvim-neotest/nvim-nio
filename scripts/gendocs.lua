@@ -107,7 +107,7 @@ H.default_input = function()
     table.insert(res, files)
   end
 
-  return vim.tbl_flatten(res)
+  return vim.iter(res):flatten():totable()
 end
 
 -- Parsing --------------------------------------------------------------------
@@ -297,7 +297,7 @@ H.toc_insert = function(s)
     toc_entry:clear_lines()
   end
 
-  for _, l in ipairs(vim.tbl_flatten(toc_lines)) do
+  for _, l in ipairs(vim.iter(toc_lines):flatten():totable()) do
     s:insert(l)
   end
 end
@@ -620,7 +620,7 @@ H.collect_strings = function(x)
     end
   end, x)
   -- Flatten to only have strings and not table of strings (from `vim.split`)
-  return vim.tbl_flatten(res)
+  return vim.iter(res):flatten():totable()
 end
 
 H.file_read = function(path)
