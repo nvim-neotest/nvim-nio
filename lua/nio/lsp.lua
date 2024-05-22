@@ -32,7 +32,7 @@ end, 6)
 ---@return nio.lsp.Client[]
 function nio.lsp.get_clients(filters)
   local clients = {}
-  for _, client in pairs(vim.lsp.get_active_clients(filters)) do
+  for _, client in pairs((vim.lsp.get_clients or vim.lsp.get_active_clients)(filters)) do
     clients[#clients + 1] = nio.lsp.convert_client(client)
   end
   return clients
