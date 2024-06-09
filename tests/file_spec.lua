@@ -43,7 +43,7 @@ describe("file", function()
 
     local err = file.write("hello")
 
-    assert.equal("EBADF: bad file descriptor", err)
+    assert.equal("EBADF", err)
   end)
 
   a.it("reads file", function()

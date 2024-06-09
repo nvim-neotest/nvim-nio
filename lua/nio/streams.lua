@@ -185,7 +185,7 @@ function nio.streams._writer(input)
     write = function(data)
       local maybe_err = uv.write(pipe, data)
       if type(maybe_err) == "string" then
-        return vim.loop.translate_sys_error(vim.loop.errno[maybe_err])
+        return maybe_err
       end
       return nil
     end,
