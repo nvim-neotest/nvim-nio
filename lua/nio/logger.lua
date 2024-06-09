@@ -54,7 +54,7 @@ function Logger.new(filename, opts)
   local log_info = vim.loop.fs_stat(logger._filename)
   if log_info and log_info.size > LARGE then
     local warn_msg =
-        string.format("Nio log is large (%d MB): %s", log_info.size / (1000 * 1000), logger._filename)
+      string.format("Nio log is large (%d MB): %s", log_info.size / (1000 * 1000), logger._filename)
     vim.notify(warn_msg, vim.log.levels.WARN)
   end
 

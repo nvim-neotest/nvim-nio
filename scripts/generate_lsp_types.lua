@@ -379,11 +379,15 @@ function Generator:request(request)
 
   lines[#lines + 1] = "---@async"
   if request.params then
-    lines[#lines + 1] = ("---@param args %s Arguments to the request"):format(self:type_name(request.params))
+    lines[#lines + 1] = ("---@param args %s Arguments to the request"):format(
+      self:type_name(request.params)
+    )
   end
   lines[#lines + 1] = "---@param bufnr integer? Buffer number (0 for current buffer)"
   lines[#lines + 1] = "---@param opts? nio.lsp.RequestOpts Options for the request handling"
-  lines[#lines + 1] = ("---@return %s.ResponseError|nil error The error object in case a request fails."):format(self:type_prefix())
+  lines[#lines + 1] = ("---@return %s.ResponseError|nil error The error object in case a request fails."):format(
+    self:type_prefix()
+  )
   if request.result then
     lines[#lines + 1] = (("---@return %s"):format(self:type_name(request.result)))
     if not vim.endswith(lines[#lines], "|nil") then
@@ -397,7 +401,7 @@ function Generator:request(request)
       self:convert_method_name(request.method),
       request.params and "args, " or ""
     )
-    )
+  )
   lines[#lines + 1] = ""
   return lines
 end
@@ -418,7 +422,7 @@ function Generator:notification(notification)
         self:convert_method_name(notification.method),
         notification.params and "args" or ""
       )
-      )
+    )
     lines[#lines + 1] = ""
   end
   return lines
@@ -442,7 +446,7 @@ function Generator:enumeration(enum)
         "|"
       )
     )
-    )
+  )
   lines[#lines + 1] = ""
   return lines
 end
@@ -481,7 +485,8 @@ function Generator:generate()
   })
   print("Generating notifications")
   for _, notification in ipairs(self.model.notifications) do
-    if notification.messageDirection == "clientToServer" or notification.messageDirection == "both"
+    if
+      notification.messageDirection == "clientToServer" or notification.messageDirection == "both"
     then
       vim.list_extend(lines, self:notification(notification))
     end
