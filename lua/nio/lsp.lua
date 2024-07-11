@@ -12,6 +12,7 @@ nio.lsp = {}
 ---@field request nio.lsp.RequestClient Interface to all requests that can be sent by the client
 ---@field notify nio.lsp.NotifyClient Interface to all notifications that can be sent by the client
 ---@field server_capabilities nio.lsp.types.ServerCapabilities
+---@field supports_method table<string, fun(opts: { bufnr : number }): boolean> Check if a method is supported by the client
 
 local async_request = tasks.wrap(function(client, method, params, bufnr, request_id_future, cb)
   local success, req_id = client.request(method, params, cb, bufnr)
@@ -58,7 +59,7 @@ function nio.lsp.get_client_by_id(id)
 end
 
 --- Create an async client for the given client
----@param client table Neovim core LSP client object
+---@param client vim.lsp.Client Neovim core LSP client object
 ---@return nio.lsp.Client
 function nio.lsp.convert_client(client)
   local n = require("nio")
@@ -70,6 +71,14 @@ function nio.lsp.convert_client(client)
 
   return {
     server_capabilities = client.server_capabilities,
+    supports_method = setmetatable({}, {
+      __index = function(_, method)
+        method = convert_method(method)
+        return function(opts)
+          return client.supports_method(method, opts)
+        end
+      end,
+    }),
     notify = setmetatable({}, {
       __index = function(_, method)
         method = convert_method(method)
