@@ -263,7 +263,7 @@ end
 ---    end)
 ---  end
 --- ```
----@param value integer The number of allowed concurrent acquisitions
+---@param value integer? The number of allowed concurrent acquisitions (default 1)
 ---@return nio.control.Semaphore
 function nio.control.semaphore(value)
   value = value or 1

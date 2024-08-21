@@ -289,7 +289,7 @@ Create an async semaphore that allows up to a given number of acquisitions.
  end
 <
 Parameters~
-{value} `(integer)` The number of allowed concurrent acquisitions
+{value} `(integer?)` The number of allowed concurrent acquisitions (default 1)
 Return~
 `(nio.control.Semaphore)`
 
@@ -648,6 +648,8 @@ See |vim.ui.input()| for details.
 
 Parameters~
 {args} `(nio.ui.InputArgs)`
+Return~
+`(string?)`
 
                                                               *nio.ui.InputArgs*
 Fields~

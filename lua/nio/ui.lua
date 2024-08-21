@@ -16,6 +16,7 @@ nio.ui = {}
 --- ```
 ---@async
 ---@param args nio.ui.InputArgs
+---@return string?
 function nio.ui.input(args) end
 
 ---@class nio.ui.InputArgs
