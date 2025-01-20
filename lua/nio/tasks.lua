@@ -155,10 +155,6 @@ end
 ---@param argc? number
 ---@return function
 function nio.tasks.create(func, argc)
-  vim.validate({
-    func = { func, "function" },
-    argc = { argc, "number", true },
-  })
   argc = argc or 0
   return function(...)
     if current_non_main_co() then
@@ -180,7 +176,6 @@ end
 ---@nodoc
 function nio.tasks.wrap(func, argc, opts)
   opts = vim.tbl_extend("keep", opts or {}, { strict = true })
-  vim.validate({ func = { func, "function" }, argc = { argc, "number" } })
   local protected = function(...)
     local args = { ... }
     local cb = args[argc]
