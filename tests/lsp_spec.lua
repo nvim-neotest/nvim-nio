@@ -7,7 +7,7 @@ describe("lsp client", function()
     local expected_params = { a = "b" }
     vim.lsp.get_client_by_id = function(id)
       return {
-        request = function(method, params, callback, bufnr)
+        request = function(_, method, params, callback, bufnr)
           assert.equals("textDocument/diagnostic", method)
           assert.equals(0, bufnr)
           assert.same(params, params)
@@ -28,7 +28,7 @@ describe("lsp client", function()
     local params = { a = "b" }
     vim.lsp.get_client_by_id = function(id)
       return {
-        request = function(method, params, callback, bufnr)
+        request = function(_, method, params, callback, bufnr)
           callback({ message = "error" }, nil)
           return true, 1
         end,
@@ -45,7 +45,7 @@ describe("lsp client", function()
   a.it("raises error on timeout", function()
     vim.lsp.get_client_by_id = function(id)
       return {
-        request = function(method, params, callback, bufnr)
+        request = function(_, method, params, callback, bufnr)
           return true, 1
         end,
       }
@@ -62,7 +62,7 @@ describe("lsp client", function()
     local cancel_received = false
     vim.lsp.get_client_by_id = function(id)
       return {
-        request = function(method, params, callback, bufnr)
+        request = function(_, method, params, callback, bufnr)
           if method == "$/cancelRequest" then
             cancel_received = true
           end
@@ -81,7 +81,7 @@ describe("lsp client", function()
     vim.lsp.get_client_by_id = function(id)
       return {
         id = id,
-        request = function(method, params, callback, bufnr)
+        request = function(_, method, params, callback, bufnr)
           return false
         end,
       }
@@ -100,7 +100,7 @@ describe("lsp client", function()
     local expected_opts = { a = "b" }
     vim.lsp.get_client_by_id = function(id)
       return {
-        supports_method = function(method, opts)
+        supports_method = function(_, method, opts)
           assert.equals(expected_method, method)
           assert.same(expected_opts, opts)
           return expected_result

@@ -15,7 +15,7 @@ nio.lsp = {}
 ---@field supports_method table<string, fun(opts: { bufnr : number }): boolean> Check if a method is supported by the client
 
 local async_request = tasks.wrap(function(client, method, params, bufnr, request_id_future, cb)
-  local success, req_id = client.request(method, params, cb, bufnr)
+  local success, req_id = client:request(method, params, cb, bufnr)
   if not success then
     if request_id_future then
       request_id_future.set_error("Request failed")
@@ -75,7 +75,7 @@ function nio.lsp.convert_client(client)
       __index = function(_, method)
         method = convert_method(method)
         return function(opts)
-          return client.supports_method(method, opts)
+          return client:supports_method(method, opts)
         end
       end,
     }),
@@ -83,7 +83,7 @@ function nio.lsp.convert_client(client)
       __index = function(_, method)
         method = convert_method(method)
         return function(params)
-          return client.notify(method, params)
+          return client:notify(method, params)
         end
       end,
     }),
