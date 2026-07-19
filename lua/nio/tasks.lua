@@ -38,6 +38,7 @@ end
 ---@field cancel fun(): nil Cancels the task
 ---@field trace fun(): string Get the stack trace of the task
 ---@field wait async function Wait for the task to finish, returning any result
+---@field on_cancel fun(callback: fun()) Register a callback for when the task is cancelled
 
 ---@class nio.tasks.TaskError
 ---@field message string
@@ -60,6 +61,7 @@ end
 function nio.tasks.run(func, cb)
   local co = coroutine.create(func)
   local cancelled = false
+  local on_cancel
   local step
   local task = { parent = nio.tasks.current_task() }
   if task.parent then
@@ -68,15 +70,31 @@ function nio.tasks.run(func, cb)
   end
   local future = require("nio").control.future()
 
+  function task.on_cancel(callback)
+    on_cancel = callback
+  end
+
   function task.cancel()
-    if cancelled or coroutine.status(co) == "dead" then
+    if cancelled then
       return
     end
+
+    local coroutine_dead = coroutine.status(co) == "dead"
+    if on_cancel then
+      if not coroutine_dead then
+        on_cancel()
+      end
+      on_cancel = nil
+    end
     cancelled = true
+
     for _, child in pairs(child_tasks[task] or {}) do
       child.cancel()
     end
-    step()
+
+    if not coroutine_dead then
+      step()
+    end
   end
 
   function task.trace()

@@ -91,18 +91,30 @@ function nio.process.run(opts)
 
   local stdio = { stdin.pipe, stdout.pipe, stderr.pipe }
 
-  local handle, pid_or_error = vim.loop.spawn(cmd, {
-    args = args,
-    stdio = stdio,
-    env = opts.env,
-    cwd = opts.cwd,
-    uid = opts.uid,
-    gid = opts.gid,
-    verbatim = opts.verbatim,
-    detached = opts.detached,
-    hide = opts.hide,
-  }, function(code, _)
-    exit_code_future.set(code)
+  local handle, pid_or_error
+  task = require("nio").run(function()
+    handle, pid_or_error = vim.loop.spawn(cmd, {
+      args = args,
+      stdio = stdio,
+      env = opts.env,
+      cwd = opts.cwd,
+      uid = opts.uid,
+      gid = opts.gid,
+      verbatim = opts.verbatim,
+      detached = opts.detached,
+      hide = opts.hide,
+    }, function(code, _)
+      exit_code_future.set(code)
+    end)
+    exit_code_future.wait()
+  end)
+
+  local signal = function(signal)
+    vim.loop.process_kill(handle, signal)
+  end
+
+  task.on_cancel(function()
+    signal(15)
   end)
 
   if not handle then
@@ -125,9 +137,7 @@ function nio.process.run(opts)
   local process
   process = {
     pid = pid_or_error,
-    signal = function(signal)
-      vim.loop.process_kill(handle, signal)
-    end,
+    signal = signal,
     stdin = {
       write = stdin.write,
       fd = stdin_fd,
@@ -155,6 +165,7 @@ function nio.process.run(opts)
       return { stdin.close(), stdout.close(), stderr.close() }
     end,
   }
+
   return process
 end
 

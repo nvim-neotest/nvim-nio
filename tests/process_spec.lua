@@ -204,4 +204,21 @@ describe("process", function()
     local exit_code = process.result()
     assert.equal(1, exit_code)
   end)
+
+  a.it("cancelling task, cancels loose process", function()
+    local process
+    task = nio.run(function()
+      local pipe = assert(vim.loop.new_pipe())
+      process = assert(nio.process.run({
+        cmd = "cat",
+        stdin = pipe,
+      }))
+      return true
+    end)
+    task.cancel()
+    local result = task.wait()
+    assert.equal(true, result)
+    local exit_code = process.result()
+    assert.equal(0, exit_code)
+  end)
 end)
