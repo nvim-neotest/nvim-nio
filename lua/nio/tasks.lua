@@ -6,7 +6,7 @@ nio.tasks = {}
 ---@type table<thread, nio.tasks.Task>
 ---@nodoc
 local tasks = {}
----@type table<nio.tasks.Task, nio.tasks.Task[]>
+---@type table<nio.tasks.Task, table<nio.tasks.Task, true>>
 ---@nodoc
 local child_tasks = {}
 
@@ -64,7 +64,7 @@ function nio.tasks.run(func, cb)
   local task = { parent = nio.tasks.current_task() }
   if task.parent then
     child_tasks[task.parent] = child_tasks[task.parent] or {}
-    table.insert(child_tasks[task.parent], task)
+    child_tasks[task.parent][task] = true
   end
   local future = require("nio").control.future()
 
@@ -73,7 +73,7 @@ function nio.tasks.run(func, cb)
       return
     end
     cancelled = true
-    for _, child in pairs(child_tasks[task] or {}) do
+    for child in pairs(child_tasks[task] or {}) do
       child.cancel()
     end
     step()
@@ -92,6 +92,10 @@ function nio.tasks.run(func, cb)
       return
     end
     tasks[co] = nil
+    child_tasks[task] = nil
+    if task.parent and child_tasks[task.parent] then
+      child_tasks[task.parent][task] = nil
+    end
     if err then
       future.set_error(err)
       if cb then
